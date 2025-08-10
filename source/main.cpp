@@ -1,7 +1,8 @@
+#include <glad/glad.h>
+
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <format>
-#include <SDL3/SDL_opengl.h>
 
 // Globals
 static int gScreenWidth = 640;
@@ -12,8 +13,10 @@ static bool gQuit = false;
 
 void GetOpenGLVersionInfo()
 {
-    std::cout << std::format("Vendor: {}\nRenderer: {}\nVersion: {}\nShading Language: {}\n",
-        glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
+    std::cout << "Vendor: " <<  glGetString(GL_VENDOR) << "\n"; 
+    std::cout << "Graphics Card Unit: " << glGetString(GL_RENDERER) << "\n";
+    std::cout << "Version: " << glGetString(GL_VERSION) << "\n";
+    std::cout << "Shading Language: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
 }
 
 void InitializeProgram()
@@ -43,7 +46,16 @@ void InitializeProgram()
     {
         std::cerr << std::format("SDL OpenGL Context not available: {}\n", SDL_GetError());
         exit(1);
-    } 
+    }
+
+    
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(SDL_GL_GetProcAddress)))
+    {
+        std::cerr << std::format("Failed to initialize GLAD: {}\n", SDL_GetError());
+        exit(1);
+    }
+
+    GetOpenGLVersionInfo();
 }
 
 void Input()
