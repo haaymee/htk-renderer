@@ -44,3 +44,4 @@ foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
 endforeach()
 
 add_subdirectory(Source)
+add_subdirectory(Dependencies)
