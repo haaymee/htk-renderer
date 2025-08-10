@@ -43,4 +43,4 @@ foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
         "${CMAKE_BINARY_DIR}/lib/${CONFIG}")
 endforeach()
 
-add_subdirectory(source)
+add_subdirectory(Source)
