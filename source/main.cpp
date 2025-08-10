@@ -4,12 +4,45 @@
 #include <SDL3/SDL.h>
 #include <format>
 
+#include <vector>
+
 // Globals
 static int gScreenWidth = 640;
 static int gScreenHeight = 480;
 SDL_Window* gGraphicsApplicationWindow = nullptr;
 static SDL_GLContext gOpenGLContext = nullptr;
 static bool gQuit = false;
+
+// Triangle Vars
+GLuint gVertexArrayObject = 0;
+GLuint gVertexBufferObject = 0;
+
+// Shader Vars
+GLuint gGraphicsPipelineShaderProgram = 0;
+const std::string gGraphicsVertexSource = R"(
+
+    #version 410 core
+
+    in vec4 position;
+
+    void main()
+    {
+        gl_Position = vec4(position.x, position.y, position.z, position.w);
+    }   
+)";
+
+const std::string gGraphicsFragmentSource = R"(
+
+    #version 410 core
+    
+    out vec4 color;
+
+    void main()
+    {
+        color = vec4(1.0f, 0.5f, 0.0f, 1.0f);
+    }
+)";
+
 
 void GetOpenGLVersionInfo()
 {
@@ -74,12 +107,21 @@ void Input()
 
 void PreDraw()
 {
-    
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+
+    glViewport(0, 0, gScreenWidth, gScreenHeight);
+    glClearColor(1.f, 1.f, 0.f, 1.f);
+
+    glUseProgram(gGraphicsPipelineShaderProgram);
 }
 
 void Draw()
 {
-    
+    glBindVertexArray(gVertexArrayObject);
+    glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
+
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void MainLoop()
@@ -102,10 +144,73 @@ void Cleanup()
     SDL_Quit();
 }
 
+void VertexSpecification()
+{
+    // Raw Vertex Data (Position)
+    const std::vector<GLfloat> vertices {
+        -0.8f, -0.8f, 0.0f,
+        0.8f, -0.8f, 0.0f,
+        0.0f, 0.8f, 0.0f
+    };
+    
+    // Input Raw Vertex Data into Vertex Buffer
+    glGenBuffers(1, &gVertexBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+
+    // Interpret data in Vertex Buffer through Vertex Arrays
+    glGenVertexArrays(1, &gVertexArrayObject);
+    glBindVertexArray(gVertexArrayObject);
+
+    glEnableVertexAttribArray(0); // Enable the Position Data attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Tell OpenGL that the 0 attribute is position attribute
+
+    // Reset OpenGL State Machine
+    glBindVertexArray(0);
+    glDisableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+GLuint CompileShader(GLuint type, const std::string& source)
+{
+    GLuint shaderObject = 0;
+
+    if (type == GL_VERTEX_SHADER)
+        shaderObject = glCreateShader(GL_VERTEX_SHADER);
+    else if (type == GL_FRAGMENT_SHADER)
+        shaderObject = glCreateShader(GL_FRAGMENT_SHADER);
+
+    const GLchar* src = source.c_str();
+    glShaderSource(shaderObject, 1, &src, nullptr);
+
+    glCompileShader(shaderObject);
+
+    return shaderObject;
+}
+
+GLuint CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
+{
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, CompileShader(GL_VERTEX_SHADER, vertexShader));
+    glAttachShader(shaderProgram, CompileShader(GL_FRAGMENT_SHADER, fragmentShader));
+    glLinkProgram(shaderProgram);
+
+    return shaderProgram;
+}
+
+void CreateGraphicsPipeline()
+{
+    gGraphicsPipelineShaderProgram = CreateShaderProgram(gGraphicsVertexSource, gGraphicsFragmentSource);
+}
+
 int main() 
 {
 
     InitializeProgram();
+
+    VertexSpecification();
+    CreateGraphicsPipeline();
+    
     MainLoop();
     Cleanup();
     
