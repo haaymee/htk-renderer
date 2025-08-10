@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(cmake/dependencies.cmake)
+include(cmake/fetch-dependencies.cmake)
 
 # Configure Predefined CMake Targets
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -43,5 +43,8 @@ foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
         "${CMAKE_BINARY_DIR}/lib/${CONFIG}")
 endforeach()
 
-add_subdirectory(Source)
+add_executable(HTK Source/main.cpp)
 add_subdirectory(Dependencies)
+
+# Set startup project (instead of ALL_BUILD)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HTK)

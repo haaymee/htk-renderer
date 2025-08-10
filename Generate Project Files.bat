@@ -2,6 +2,7 @@
 
 :: === CONFIGURATION ===
 set BUILD_DIR=Build
+set THIRDPARTY_DIR="ThirdParty"
 set GENERATOR="Visual Studio 17 2022"
 set CONFIG=Debug
 
@@ -9,6 +10,12 @@ set CONFIG=Debug
 if exist "%BUILD_DIR%" (
     echo Removing %BUILD_DIR%...
     rmdir /s /q "%BUILD_DIR%"
+)
+
+:: Remove Third Party directory completely
+if exist "%THIRDPARTY_DIR%" (
+    echo Removing %THIRDPARTY_DIR%...
+    rmdir /s /q "%THIRDPARTY_DIR%"
 )
 
 echo -----------------------------------
