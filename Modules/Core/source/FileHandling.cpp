@@ -1,16 +1,11 @@
-module;
+#include "FileHandling.h"
 
-#include <string>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 
-module Core:FileHandling;
-
-
 namespace fs = std::filesystem;
 
-std::string ReadTextFileAsString(const fs::path& relativeFilePath)
+std::string FileHandling::ReadTextFileAsString(const fs::path& relativeFilePath)
 {
     std::ifstream file {PROJECT_ROOT_DIR / relativeFilePath};
 
@@ -22,7 +17,7 @@ std::string ReadTextFileAsString(const fs::path& relativeFilePath)
     return buffer.str();
 }
 
-bool DoesDirectoryExist(const std::string& directoryPath)
+bool FileHandling::DoesDirectoryExist(const std::filesystem::path& directoryPath)
 {
     if (fs::exists(directoryPath))
         return fs::is_directory(directoryPath);
@@ -31,7 +26,7 @@ bool DoesDirectoryExist(const std::string& directoryPath)
     return false;
 }
 
-bool DoesFileExist(const std::string& relativeFilePath)
+bool FileHandling::DoesFileExist(const std::filesystem::path& relativeFilePath)
 {
     if (fs::exists(relativeFilePath))
         return fs::is_regular_file(relativeFilePath);

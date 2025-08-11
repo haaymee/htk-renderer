@@ -1,19 +1,17 @@
-module;
+#pragma once
 
 #include <glad/glad.h>
 #include <string>
 #include <vector>
 #include <filesystem>
 
-export module Graphics:Shaders;
-
-export enum class ShaderType
+enum class ShaderType
 {
     ShaderType_Vertex,
     ShaderType_Fragment
 };
 
-export class ShaderStage
+class ShaderStage
 {
 public:
 
@@ -30,18 +28,13 @@ public:
     bool Compile();
 
 private:
-
-    bool LoadSourceFromFile(const std::filesystem::path& shaderSourcePath);
+    
+    static std::string LoadSourceFromFile(const std::filesystem::path& shaderSourcePath);
     
 private:
 
     std::string _shaderSource;
     ShaderType _shaderType;
     GLuint _shaderObjectHandle = 0;
-    
-};
-
-export class ShaderProgram
-{
     
 };
