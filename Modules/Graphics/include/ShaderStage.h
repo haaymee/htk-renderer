@@ -10,6 +10,10 @@ enum class ShaderType
     ShaderType_Fragment
 };
 
+///
+/// Wrapper for individual shader objects before they get linked to a shader program.\n\n
+/// They must be compiled manually before linking to a shader program.
+///
 class ShaderStage
 {
 public:
@@ -19,8 +23,8 @@ public:
 
     ShaderStage(const ShaderStage& other) = delete;
     ShaderStage& operator=(const ShaderStage& other) = delete;
-    ShaderStage(ShaderStage&& other) noexcept;
-    ShaderStage& operator=(ShaderStage&& other) noexcept;
+    // ShaderStage(ShaderStage&& other) noexcept;
+    // ShaderStage& operator=(ShaderStage&& other) noexcept;
     
     ~ShaderStage();
 
@@ -29,8 +33,10 @@ public:
 public:
 
     std::string GetShaderSourceString() const {return _shaderSource;}
+    std::string GetShaderFileName() const {return _shaderFileName;}
     ShaderType GetShaderType() const {return _shaderType;}
     GLuint GetShaderObjectHandle() const { return _shaderObjectHandle; }
+    bool HasAlreadyCompiled() const {return _isCompiled;}
     
 private:
     
@@ -39,7 +45,10 @@ private:
 private:
 
     std::string _shaderSource;
+    std::string _shaderFileName;
     ShaderType _shaderType;
     GLuint _shaderObjectHandle = 0;
+    
+    bool _isCompiled = false;
     
 };

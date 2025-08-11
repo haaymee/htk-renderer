@@ -1,10 +1,12 @@
 #include "ShaderStage.h"
 
 #include <filesystem>
+#include <iostream>
+
 #include "FileHandling.h"
 
 ShaderStage::ShaderStage(const std::filesystem::path& shaderSourcePath, ShaderType shaderType)
-    : _shaderType(shaderType)
+    : _shaderType(shaderType), _shaderFileName(shaderSourcePath.filename().string())
 {
     _shaderSource = LoadSourceFromFile(shaderSourcePath);
 
@@ -29,14 +31,26 @@ ShaderStage::~ShaderStage()
 
 bool ShaderStage::Compile()
 {
+    if (_isCompiled)
+    {
+        std::cout << _shaderFileName << " has already been compiled\n";
+        return false;
+    }
+    
     glCompileShader(_shaderObjectHandle);
     
     GLint compileSuccess = GL_FALSE;
     glGetShaderiv(_shaderObjectHandle, GL_COMPILE_STATUS, &compileSuccess);
 
     if (!compileSuccess)
-        throw std::runtime_error("Shader compilation failed");
+    {
+        char infoLog[512];
+        glGetShaderInfoLog(_shaderObjectHandle, sizeof(infoLog), nullptr, infoLog);
+        throw std::runtime_error(std::format("{} shader compilation failed: {}",
+            _shaderFileName, infoLog));
+    }
     
+    _isCompiled = true;
     return compileSuccess;
 }
 

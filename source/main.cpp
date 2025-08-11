@@ -6,6 +6,7 @@
 
 #include <vector>
 #include "ShaderStage.h"
+#include "ShaderProgram.h"
 
 // Globals
 static int gScreenWidth = 640;
@@ -19,7 +20,7 @@ GLuint gVertexArrayObject = 0;
 GLuint gVertexBufferObject = 0;
 
 // Shader Vars
-GLuint gGraphicsPipelineShaderProgram = 0;
+ShaderProgram* gGraphicsPipelineShaderProgram = nullptr;
 
 void GetOpenGLVersionInfo()
 {
@@ -90,7 +91,8 @@ void PreDraw()
     glViewport(0, 0, gScreenWidth, gScreenHeight);
     glClearColor(1.f, 1.f, 0.f, 1.f);
 
-    glUseProgram(gGraphicsPipelineShaderProgram);
+    glUseProgram(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle());
+
 }
 
 void Draw()
@@ -148,37 +150,24 @@ void VertexSpecification()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-GLuint CreateShaderProgram(const std::filesystem::path& vertexShader, const std::filesystem::path& fragmentShader)
+void CreateShaderProgram(const std::filesystem::path& vertexShader, const std::filesystem::path& fragmentShader)
 {
-    GLuint shaderProgram = glCreateProgram();
-
     ShaderStage vertShader {vertexShader, ShaderType::ShaderType_Vertex};
     ShaderStage fragShader {fragmentShader, ShaderType::ShaderType_Fragment};
 
     vertShader.Compile();
     fragShader.Compile();
-    
-    glAttachShader(shaderProgram, vertShader.GetShaderObjectHandle());
-    glAttachShader(shaderProgram, fragShader.GetShaderObjectHandle());
-    glLinkProgram(shaderProgram);
-    
-    return shaderProgram;
-}
 
-void CreateGraphicsPipeline()
-{
-    gGraphicsPipelineShaderProgram = CreateShaderProgram(
-        "Source/Shaders/vertex.vert",
-        "Source/Shaders/fragment.frag");
+    gGraphicsPipelineShaderProgram = new ShaderProgram{ vertShader, fragShader };
+    gGraphicsPipelineShaderProgram->LinkProgram();
 }
 
 int main() 
 {
-
     InitializeProgram();
 
     VertexSpecification();
-    CreateGraphicsPipeline();
+    CreateShaderProgram("Source/Shaders/vertex.vert", "Source/Shaders/fragment.frag");
     
     MainLoop();
     Cleanup();

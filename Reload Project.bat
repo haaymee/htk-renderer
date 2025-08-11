@@ -14,13 +14,5 @@ cmake -S . -B %BUILD_DIR% -G %GENERATOR% -DCMAKE_BUILD_TYPE=%CONFIG%
 
 echo.
 echo -----------------------------------
-echo Building project...
+echo Generated updated project files!
 echo -----------------------------------
-
-cmake --build %BUILD_DIR% --config %CONFIG%
-
-echo.
-echo -----------------------------------
-echo Build complete!
-echo -----------------------------------
-pause
