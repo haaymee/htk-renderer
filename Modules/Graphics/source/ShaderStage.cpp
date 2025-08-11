@@ -33,6 +33,9 @@ bool ShaderStage::Compile()
     
     GLint compileSuccess = GL_FALSE;
     glGetShaderiv(_shaderObjectHandle, GL_COMPILE_STATUS, &compileSuccess);
+
+    if (!compileSuccess)
+        throw std::runtime_error("Shader compilation failed");
     
     return compileSuccess;
 }

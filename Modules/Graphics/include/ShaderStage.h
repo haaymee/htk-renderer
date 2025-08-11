@@ -2,7 +2,6 @@
 
 #include <glad/glad.h>
 #include <string>
-#include <vector>
 #include <filesystem>
 
 enum class ShaderType
@@ -27,6 +26,12 @@ public:
 
     bool Compile();
 
+public:
+
+    std::string GetShaderSourceString() const {return _shaderSource;}
+    ShaderType GetShaderType() const {return _shaderType;}
+    GLuint GetShaderObjectHandle() const { return _shaderObjectHandle; }
+    
 private:
     
     static std::string LoadSourceFromFile(const std::filesystem::path& shaderSourcePath);

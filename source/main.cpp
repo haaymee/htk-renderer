@@ -5,6 +5,7 @@
 #include <format>
 
 #include <vector>
+#include "ShaderStage.h"
 
 // Globals
 static int gScreenWidth = 640;
@@ -19,30 +20,6 @@ GLuint gVertexBufferObject = 0;
 
 // Shader Vars
 GLuint gGraphicsPipelineShaderProgram = 0;
-const std::string gGraphicsVertexSource = R"(
-
-    #version 410 core
-
-    in vec4 position;
-
-    void main()
-    {
-        gl_Position = vec4(position.x, position.y, position.z, position.w);
-    }   
-)";
-
-const std::string gGraphicsFragmentSource = R"(
-
-    #version 410 core
-    
-    out vec4 color;
-
-    void main()
-    {
-        color = vec4(1.0f, 0.5f, 0.0f, 1.0f);
-    }
-)";
-
 
 void GetOpenGLVersionInfo()
 {
@@ -171,36 +148,28 @@ void VertexSpecification()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-GLuint CompileShader(GLuint type, const std::string& source)
-{
-    GLuint shaderObject = 0;
-
-    if (type == GL_VERTEX_SHADER)
-        shaderObject = glCreateShader(GL_VERTEX_SHADER);
-    else if (type == GL_FRAGMENT_SHADER)
-        shaderObject = glCreateShader(GL_FRAGMENT_SHADER);
-
-    const GLchar* src = source.c_str();
-    glShaderSource(shaderObject, 1, &src, nullptr);
-
-    glCompileShader(shaderObject);
-
-    return shaderObject;
-}
-
-GLuint CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
+GLuint CreateShaderProgram(const std::filesystem::path& vertexShader, const std::filesystem::path& fragmentShader)
 {
     GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, CompileShader(GL_VERTEX_SHADER, vertexShader));
-    glAttachShader(shaderProgram, CompileShader(GL_FRAGMENT_SHADER, fragmentShader));
-    glLinkProgram(shaderProgram);
 
+    ShaderStage vertShader {vertexShader, ShaderType::ShaderType_Vertex};
+    ShaderStage fragShader {fragmentShader, ShaderType::ShaderType_Fragment};
+
+    vertShader.Compile();
+    fragShader.Compile();
+    
+    glAttachShader(shaderProgram, vertShader.GetShaderObjectHandle());
+    glAttachShader(shaderProgram, fragShader.GetShaderObjectHandle());
+    glLinkProgram(shaderProgram);
+    
     return shaderProgram;
 }
 
 void CreateGraphicsPipeline()
 {
-    gGraphicsPipelineShaderProgram = CreateShaderProgram(gGraphicsVertexSource, gGraphicsFragmentSource);
+    gGraphicsPipelineShaderProgram = CreateShaderProgram(
+        "Source/Shaders/vertex.vert",
+        "Source/Shaders/fragment.frag");
 }
 
 int main() 

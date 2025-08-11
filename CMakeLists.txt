@@ -43,7 +43,9 @@ foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
         "${CMAKE_BINARY_DIR}/lib/${CONFIG}")
 endforeach()
 
-add_executable(HTK Source/main.cpp)
+add_executable(${PROJECT_NAME} Source/main.cpp)
+
+add_subdirectory(Source)
 add_subdirectory(Dependencies)
 add_subdirectory(Modules)
 
