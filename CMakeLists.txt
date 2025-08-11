@@ -45,9 +45,7 @@ endforeach()
 
 add_executable(HTK Source/main.cpp)
 add_subdirectory(Dependencies)
+add_subdirectory(Modules)
 
 # Set startup project (instead of ALL_BUILD)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT HTK)
-
-# Set compile-definitions for project
-add_compile_definitions(PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
