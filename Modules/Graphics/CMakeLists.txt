@@ -4,7 +4,7 @@ set(LIBRARY_NAME Graphics)
 
 collect_source_files(SOURCES ${CMAKE_CURRENT_SOURCE_DIR} RECURSIVE EXTENSIONS h cpp ixx)
 
-if (NOT ${SOURCES})
+if (SOURCES)
     add_library(${LIBRARY_NAME} ${SOURCES})
 
     target_compile_features(${LIBRARY_NAME} PUBLIC cxx_std_20)
@@ -14,6 +14,9 @@ if (NOT ${SOURCES})
         PRIVATE source exports
     )
 
+    target_link_libraries(${LIBRARY_NAME} PUBLIC glm::glm SDL GLAD)
+    target_link_libraries(${LIBRARY_NAME} PRIVATE Core)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
+    
 endif()
 

@@ -1,11 +1,14 @@
-export module HTK:FileHandling;
+module;
 
 #include <string>
+
+export module Core:FileHandling;
+
 
 /// 
 /// @param relativeFilePath the path of the file relative to the project root directory
 /// @return the full contents of a text file as a string
-export const std::string& ReadTextFileAsString(const std::string& relativeFilePath);
+export std::string ReadTextFileAsString(const std::string& relativeFilePath);
 
 export bool DoesDirectoryExist(const std::string& directoryPath);
 

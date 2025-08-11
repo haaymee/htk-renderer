@@ -4,7 +4,7 @@ set(LIBRARY_NAME Utils)
 
 collect_source_files(SOURCES ${CMAKE_CURRENT_SOURCE_DIR} RECURSIVE EXTENSIONS h cpp ixx)
 
-if (NOT ${SOURCES})
+if (SOURCES)
     add_library(${LIBRARY_NAME} ${SOURCES})
 
     target_compile_features(${LIBRARY_NAME} PUBLIC cxx_std_20)
