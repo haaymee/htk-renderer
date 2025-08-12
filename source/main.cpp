@@ -18,6 +18,7 @@ static bool gQuit = false;
 // Triangle Vars
 GLuint gVertexArrayObject = 0;
 GLuint gVertexBufferObject = 0;
+GLuint gIndexBufferObject = 0;
 
 // Shader Vars
 ShaderProgram* gGraphicsPipelineShaderProgram = nullptr;
@@ -100,7 +101,7 @@ void Draw()
     glBindVertexArray(gVertexArrayObject);
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void MainLoop()
@@ -127,13 +128,18 @@ void VertexSpecification()
 {
     // Raw Vertex Data (Position, Color)
     const std::vector<GLfloat> vertexData {
-        -0.8f, -0.8f, 0.0f, // Left Vertex Pos
-        1.0f, 0.0f, 0.0f, // Left Vertex Color
-        0.8f, -0.8f, 0.0f, // Right Vertex Pos
-        0.0f, 1.0f, 0.0f, // Right Vertex Color
-        0.0f, 0.8f, 0.0f, // Top Vertex Pos
-        0.0f, 0.0f, 1.0f // Top Vertex Color 
+        -0.8f, -0.8f, 0.0f, // BL Vertex Pos
+        1.0f, 0.0f, 0.0f,   // BL Vertex Color
+        0.8f, -0.8f, 0.0f,  // BR Vertex Pos
+        0.0f, 1.0f, 0.0f,   // BR Vertex Color
+        -0.8f, 0.8f, 0.0f,  // TL Vertex Pos
+        0.0f, 0.0f, 1.0f,    // TL Vertex Color
+        0.8f, 0.8f, 0.0f,  // TR Vertex Pos
+        0.0f, 1.0f, 1.0f    // TR Vertex Color
     };
+
+    // Index Drawing Order of Vertices
+    const std::vector<GLuint> indexData {0, 1, 2, 1, 3, 2};
     
     // Input Raw Vertex Data into Vertex Buffer
     glGenBuffers(1, &gVertexBufferObject);
@@ -149,11 +155,16 @@ void VertexSpecification()
 
     glEnableVertexAttribArray(1); // Enable the Color Data attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*6, (GLvoid*)(sizeof(GLfloat)*3));
+
+    glGenBuffers(1, &gIndexBufferObject);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBufferObject);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indexData.size(), indexData.data(), GL_STATIC_DRAW);
     
     // Reset OpenGL State Machine
     glBindVertexArray(0);
     glDisableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void CreateShaderProgram(const std::filesystem::path& vertexShader, const std::filesystem::path& fragmentShader)
