@@ -46,8 +46,10 @@ bool ShaderStage::Compile()
     {
         char infoLog[512];
         glGetShaderInfoLog(_shaderObjectHandle, sizeof(infoLog), nullptr, infoLog);
-        throw std::runtime_error(std::format("{} shader compilation failed: {}",
-            _shaderFileName, infoLog));
+        std::string errorMessage = std::format("{} shader compilation failed: {}", _shaderFileName, infoLog);
+
+        std::cerr << errorMessage << "\n";
+        throw std::runtime_error(errorMessage);
     }
     
     _isCompiled = true;

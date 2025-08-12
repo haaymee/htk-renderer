@@ -125,25 +125,31 @@ void Cleanup()
 
 void VertexSpecification()
 {
-    // Raw Vertex Data (Position)
-    const std::vector<GLfloat> vertices {
-        -0.8f, -0.8f, 0.0f,
-        0.8f, -0.8f, 0.0f,
-        0.0f, 0.8f, 0.0f
+    // Raw Vertex Data (Position, Color)
+    const std::vector<GLfloat> vertexData {
+        -0.8f, -0.8f, 0.0f, // Left Vertex Pos
+        1.0f, 0.0f, 0.0f, // Left Vertex Color
+        0.8f, -0.8f, 0.0f, // Right Vertex Pos
+        0.0f, 1.0f, 0.0f, // Right Vertex Color
+        0.0f, 0.8f, 0.0f, // Top Vertex Pos
+        0.0f, 0.0f, 1.0f // Top Vertex Color 
     };
     
     // Input Raw Vertex Data into Vertex Buffer
     glGenBuffers(1, &gVertexBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertexData.size(), vertexData.data(), GL_STATIC_DRAW);
 
     // Interpret data in Vertex Buffer through Vertex Arrays
     glGenVertexArrays(1, &gVertexArrayObject);
     glBindVertexArray(gVertexArrayObject);
 
     glEnableVertexAttribArray(0); // Enable the Position Data attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Tell OpenGL that the 0 attribute is position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*6, (GLvoid*)0); // Tell OpenGL that the 0 attribute is position attribute
 
+    glEnableVertexAttribArray(1); // Enable the Color Data attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*6, (GLvoid*)(sizeof(GLfloat)*3));
+    
     // Reset OpenGL State Machine
     glBindVertexArray(0);
     glDisableVertexAttribArray(0);
