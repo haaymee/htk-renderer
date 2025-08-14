@@ -10,6 +10,10 @@
 #include "ShaderProgram.h"
 #include <glm/glm.hpp>
 
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 // Globals
 static int gScreenWidth = 640;
 static int gScreenHeight = 480;
@@ -28,7 +32,7 @@ GLuint gIndexBufferObject = 0;
 
 // Shader Vars
 std::unique_ptr<ShaderProgram> gGraphicsPipelineShaderProgram = nullptr;
-glm::vec3 gPositionOffset = glm::vec3(0.0f);
+glm::vec3 gObjectPosition = glm::vec3(0.0f, 0.0f, -1.f);
 
 void GetOpenGLVersionInfo()
 {
@@ -93,14 +97,26 @@ void Input()
         {
             if (e.key.key == SDLK_UP)
             {
-                gPositionOffset.y += 0.01f;
+                gObjectPosition.y += 0.05f;
                 std::cout << "Up Arrow Key Pressed\n";
             }
 
             if (e.key.key == SDLK_DOWN)
             {
-                gPositionOffset.y -= 0.01f;
+                gObjectPosition.y -= 0.05f;
                 std::cout << "Down Arrow Key Pressed\n";
+            }
+
+            if (e.key.key == SDLK_Q)
+            {
+                gObjectPosition.z -= 0.05f;
+                std::cout << "Q Arrow Key Pressed\n";
+            }
+
+            if (e.key.key == SDLK_E)
+            {
+                gObjectPosition.z += 0.05f;
+                std::cout << "E Arrow Key Pressed\n";
             }
         }
     }
@@ -128,7 +144,20 @@ void PreDraw()
     // Position Uniform
     location = glGetUniformLocation(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_posOffset");
     if (location >= 0)
-        glUniform3f(location, gPositionOffset.x, gPositionOffset.y, gPositionOffset.z);
+        glUniform3f(location, gObjectPosition.x, gObjectPosition.y, gObjectPosition.z);
+
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), gObjectPosition);
+    glm::mat4 projectionMat = glm::perspective(glm::radians(45.f), float(gScreenWidth)/float(gScreenHeight), 0.01f, 10.f);
+
+    // Model Matrix Uniform
+    location = glGetUniformLocation(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_modelMatrix");
+    if (location >= 0)
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+    // Projection Matrix Uniform
+    location = glGetUniformLocation(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_projectionMatrix");
+    if (location >= 0)
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(projectionMat));
 }
 
 void Draw()
