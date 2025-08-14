@@ -28,6 +28,7 @@ GLuint gIndexBufferObject = 0;
 
 // Shader Vars
 std::unique_ptr<ShaderProgram> gGraphicsPipelineShaderProgram = nullptr;
+glm::vec3 gPositionOffset = glm::vec3(0.0f);
 
 void GetOpenGLVersionInfo()
 {
@@ -87,6 +88,21 @@ void Input()
             std::cout << "Requested to quit application...\n";
             gQuit = true;
         }
+
+        if (e.type == SDL_EVENT_KEY_DOWN)
+        {
+            if (e.key.key == SDLK_UP)
+            {
+                gPositionOffset.y += 0.01f;
+                std::cout << "Up Arrow Key Pressed\n";
+            }
+
+            if (e.key.key == SDLK_DOWN)
+            {
+                gPositionOffset.y -= 0.01f;
+                std::cout << "Down Arrow Key Pressed\n";
+            }
+        }
     }
 }
 
@@ -105,12 +121,14 @@ void PreDraw()
     GLint location = glGetUniformLocation(
         gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_time");
 
+    // Time Uniform
     if (location >= 0)
-    {
         glUniform1f(location, static_cast<GLfloat>(appElapsedTime.count()));
-    }
-    else
-        std::cerr << std::format("Failed to get uniform location");
+
+    // Position Uniform
+    location = glGetUniformLocation(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_posOffset");
+    if (location >= 0)
+        glUniform3f(location, gPositionOffset.x, gPositionOffset.y, gPositionOffset.z);
 }
 
 void Draw()
