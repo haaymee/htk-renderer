@@ -1,7 +1,7 @@
 #include "ShaderProgram.h"
 
-#include <iostream>
 #include "ShaderStage.h"
+#include "glm/gtc/type_ptr.hpp"
 
 ShaderProgram::ShaderProgram()
     :_shaderProgramHandle(glCreateProgram())
@@ -83,4 +83,13 @@ bool ShaderProgram::AreAttachedShadersCompiled()
         }
 
     return true;
+}
+
+GLint ShaderProgram::ValidateUniformLocation(const std::string& uniformName)
+{
+    GLint location = glGetUniformLocation(_shaderProgramHandle, uniformName.c_str());
+    if (location == -1)
+        std::cerr << std::format("Uniform {} not found\n", uniformName);
+
+    return location;
 }

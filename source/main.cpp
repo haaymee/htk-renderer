@@ -134,30 +134,13 @@ void PreDraw()
 
     glUseProgram(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle());
 
-    GLint location = glGetUniformLocation(
-        gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_time");
-
-    // Time Uniform
-    if (location >= 0)
-        glUniform1f(location, static_cast<GLfloat>(appElapsedTime.count()));
-
-    // Position Uniform
-    location = glGetUniformLocation(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_posOffset");
-    if (location >= 0)
-        glUniform3f(location, gObjectPosition.x, gObjectPosition.y, gObjectPosition.z);
+    gGraphicsPipelineShaderProgram->LinkUniform("u_time", static_cast<GLfloat>(appElapsedTime.count()));
 
     glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), gObjectPosition);
     glm::mat4 projectionMat = glm::perspective(glm::radians(45.f), float(gScreenWidth)/float(gScreenHeight), 0.01f, 10.f);
 
-    // Model Matrix Uniform
-    location = glGetUniformLocation(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_modelMatrix");
-    if (location >= 0)
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-
-    // Projection Matrix Uniform
-    location = glGetUniformLocation(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_projectionMatrix");
-    if (location >= 0)
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(projectionMat));
+    gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", modelMatrix);
+    gGraphicsPipelineShaderProgram->LinkUniform("u_projectionMatrix", projectionMat);
 }
 
 void Draw()
