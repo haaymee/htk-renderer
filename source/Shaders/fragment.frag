@@ -1,5 +1,7 @@
 #version 410 core
 
+uniform float u_time;
+
 in vec3 vertexColor;
 
 out vec4 finalColor;

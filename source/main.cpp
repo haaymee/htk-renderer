@@ -1,12 +1,14 @@
 #include <glad/glad.h>
+#include <SDL3/SDL.h>
 
 #include <iostream>
-#include <SDL3/SDL.h>
 #include <format>
-
 #include <vector>
+#include <chrono>
+
 #include "ShaderStage.h"
 #include "ShaderProgram.h"
+#include <glm/glm.hpp>
 
 // Globals
 static int gScreenWidth = 640;
@@ -15,13 +17,17 @@ SDL_Window* gGraphicsApplicationWindow = nullptr;
 static SDL_GLContext gOpenGLContext = nullptr;
 static bool gQuit = false;
 
+// App Time Variables
+auto appStartTime = std::chrono::steady_clock::now();
+std::chrono::duration<double> appElapsedTime {};
+
 // Triangle Vars
 GLuint gVertexArrayObject = 0;
 GLuint gVertexBufferObject = 0;
 GLuint gIndexBufferObject = 0;
 
 // Shader Vars
-ShaderProgram* gGraphicsPipelineShaderProgram = nullptr;
+std::unique_ptr<ShaderProgram> gGraphicsPipelineShaderProgram = nullptr;
 
 void GetOpenGLVersionInfo()
 {
@@ -90,10 +96,21 @@ void PreDraw()
     glDisable(GL_CULL_FACE);
 
     glViewport(0, 0, gScreenWidth, gScreenHeight);
-    glClearColor(1.f, 1.f, 0.f, 1.f);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle());
 
+    GLint location = glGetUniformLocation(
+        gGraphicsPipelineShaderProgram->GetShaderProgramIdHandle(), "u_time");
+
+    if (location >= 0)
+    {
+        glUniform1f(location, static_cast<GLfloat>(appElapsedTime.count()));
+    }
+    else
+        std::cerr << std::format("Failed to get uniform location");
 }
 
 void Draw()
@@ -108,6 +125,8 @@ void MainLoop()
 {
     while (!gQuit)
     {
+        appElapsedTime = std::chrono::duration<double>(std::chrono::steady_clock::now() - appStartTime);
+        
         Input();
 
         PreDraw();
@@ -128,13 +147,13 @@ void VertexSpecification()
 {
     // Raw Vertex Data (Position, Color)
     const std::vector<GLfloat> vertexData {
-        -0.8f, -0.8f, 0.0f, // BL Vertex Pos
+        -0.5f, -0.5f, 0.0f, // BL Vertex Pos
         1.0f, 0.0f, 0.0f,   // BL Vertex Color
-        0.8f, -0.8f, 0.0f,  // BR Vertex Pos
+        0.5f, -0.5f, 0.0f,  // BR Vertex Pos
         0.0f, 1.0f, 0.0f,   // BR Vertex Color
-        -0.8f, 0.8f, 0.0f,  // TL Vertex Pos
+        -0.5f, 0.5f, 0.0f,  // TL Vertex Pos
         0.0f, 0.0f, 1.0f,    // TL Vertex Color
-        0.8f, 0.8f, 0.0f,  // TR Vertex Pos
+        0.5f, 0.5f, 0.0f,  // TR Vertex Pos
         0.0f, 1.0f, 1.0f    // TR Vertex Color
     };
 
@@ -174,8 +193,8 @@ void CreateShaderProgram(const std::filesystem::path& vertexShader, const std::f
 
     vertShader.Compile();
     fragShader.Compile();
-
-    gGraphicsPipelineShaderProgram = new ShaderProgram{ vertShader, fragShader };
+    
+    gGraphicsPipelineShaderProgram = std::make_unique<ShaderProgram>(vertShader, fragShader);
     gGraphicsPipelineShaderProgram->LinkProgram();
 }
 
