@@ -32,7 +32,7 @@ GLuint gIndexBufferObject = 0;
 
 // Shader Vars
 std::unique_ptr<ShaderProgram> gGraphicsPipelineShaderProgram = nullptr;
-glm::vec3 gObjectPosition = glm::vec3(0.0f, 0.0f, -1.f);
+glm::mat4 gModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
 void GetOpenGLVersionInfo()
 {
@@ -97,37 +97,49 @@ void Input()
         {
             if (e.key.key == SDLK_W)
             {
-                gObjectPosition.y += 0.05f;
+                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, 0.05f, 0.0f));
                 std::cout << "W Pressed\n";
             }
 
             if (e.key.key == SDLK_S)
             {
-                gObjectPosition.y -= 0.05f;
+                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, -0.05f, 0.0f));
                 std::cout << "S Pressed\n";
             }
 
             if (e.key.key == SDLK_A)
             {
-                gObjectPosition.x -= 0.05f;
+                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(-0.05f, 0.0f, 0.0f));
                 std::cout << "A Pressed\n";
             }
 
             if (e.key.key == SDLK_D)
             {
-                gObjectPosition.x += 0.05f;
+                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.05f, 0.0f, 0.0f));
                 std::cout << "D Pressed\n";
             }
             
             if (e.key.key == SDLK_UP)
             {
-                gObjectPosition.z -= 0.05f;
+                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, 0.0f, -0.05f));
                 std::cout << "Q Arrow Key Pressed\n";
             }
 
             if (e.key.key == SDLK_DOWN)
             {
-                gObjectPosition.z += 0.05f;
+                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, 0.0f, 0.05f));
+                std::cout << "E Arrow Key Pressed\n";
+            }
+
+            if (e.key.key == SDLK_Q)
+            {
+                gModelMatrix = glm::rotate(gModelMatrix, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                std::cout << "E Arrow Key Pressed\n";
+            }
+
+            if (e.key.key == SDLK_E)
+            {
+                gModelMatrix = glm::rotate(gModelMatrix, glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 std::cout << "E Arrow Key Pressed\n";
             }
         }
@@ -148,10 +160,9 @@ void PreDraw()
 
     gGraphicsPipelineShaderProgram->LinkUniform("u_time", static_cast<GLfloat>(appElapsedTime.count()));
 
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), gObjectPosition);
     glm::mat4 projectionMat = glm::perspective(glm::radians(45.f), float(gScreenWidth)/float(gScreenHeight), 0.01f, 10.f);
 
-    gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", modelMatrix);
+    gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", gModelMatrix);
     gGraphicsPipelineShaderProgram->LinkUniform("u_projectionMatrix", projectionMat);
 }
 
