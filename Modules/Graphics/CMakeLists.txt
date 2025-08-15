@@ -14,7 +14,6 @@ if (SOURCES)
         PRIVATE source exports
     )
 
-    target_link_libraries(${LIBRARY_NAME} PUBLIC glm::glm SDL GLAD)
     target_link_libraries(${LIBRARY_NAME} PRIVATE Core)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
     

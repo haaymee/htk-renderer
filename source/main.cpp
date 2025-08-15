@@ -8,11 +8,8 @@
 
 #include "ShaderStage.h"
 #include "ShaderProgram.h"
-#include <glm/glm.hpp>
 
-#include "glm/ext/matrix_clip_space.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
+#include "Transform.h"
 
 // Globals
 static int gScreenWidth = 640;
@@ -32,7 +29,8 @@ GLuint gIndexBufferObject = 0;
 
 // Shader Vars
 std::unique_ptr<ShaderProgram> gGraphicsPipelineShaderProgram = nullptr;
-glm::mat4 gModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+// glm::mat4 gModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+Transform quadTransform = {};
 
 void GetOpenGLVersionInfo()
 {
@@ -97,49 +95,67 @@ void Input()
         {
             if (e.key.key == SDLK_W)
             {
-                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, 0.05f, 0.0f));
+                quadTransform.AddPositionOffset(0.0f, 0.05f, 0.0f);
                 std::cout << "W Pressed\n";
             }
 
             if (e.key.key == SDLK_S)
             {
-                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, -0.05f, 0.0f));
+                quadTransform.AddPositionOffset(0.0f, -0.05f, 0.0f);
                 std::cout << "S Pressed\n";
             }
 
             if (e.key.key == SDLK_A)
             {
-                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(-0.05f, 0.0f, 0.0f));
+                quadTransform.AddPositionOffset(-0.05f, 0.0f, 0.0f);
                 std::cout << "A Pressed\n";
             }
 
             if (e.key.key == SDLK_D)
             {
-                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.05f, 0.0f, 0.0f));
+                quadTransform.AddPositionOffset(0.05f, 0.0f, 0.0f);
                 std::cout << "D Pressed\n";
             }
             
             if (e.key.key == SDLK_UP)
             {
-                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, 0.0f, -0.05f));
-                std::cout << "Q Arrow Key Pressed\n";
+                quadTransform.AddPositionOffset(0.0f, 0.0f, -0.05f);
+                std::cout << "Up Arrow Key Pressed\n";
             }
 
             if (e.key.key == SDLK_DOWN)
             {
-                gModelMatrix = glm::translate(gModelMatrix, glm::vec3(0.0f, 0.0f, 0.05f));
-                std::cout << "E Arrow Key Pressed\n";
+                quadTransform.AddPositionOffset(0.0f, 0.0f, 0.05f);
+                std::cout << "Down Arrow Key Pressed\n";
+            }
+
+            if (e.key.key == SDLK_LEFT)
+            {
+                quadTransform.AddScaleOffset(-0.01f);
+                std::cout << "Left Arrow Key Pressed\n";
+            }
+
+            if (e.key.key == SDLK_RIGHT)
+            {
+                quadTransform.AddScaleOffset(0.01f);
+                std::cout << "Right Arrow Key Pressed\n";
+            }
+            
+            if (e.key.key == SDLK_DOWN)
+            {
+                quadTransform.AddPositionOffset(0.0f, 0.0f, 0.05f);
+                std::cout << "Down Arrow Key Pressed\n";
             }
 
             if (e.key.key == SDLK_Q)
             {
-                gModelMatrix = glm::rotate(gModelMatrix, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                std::cout << "E Arrow Key Pressed\n";
+                quadTransform.AddRotationYOffset(2.0f);
+                std::cout << "Q Arrow Key Pressed\n";
             }
 
             if (e.key.key == SDLK_E)
             {
-                gModelMatrix = glm::rotate(gModelMatrix, glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                quadTransform.AddRotationYOffset(-2.0f);
                 std::cout << "E Arrow Key Pressed\n";
             }
         }
@@ -148,6 +164,9 @@ void Input()
 
 void PreDraw()
 {
+    if (quadTransform.IsDirty())
+        quadTransform.UpdateModelMatrix();
+    
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
@@ -162,7 +181,7 @@ void PreDraw()
 
     glm::mat4 projectionMat = glm::perspective(glm::radians(45.f), float(gScreenWidth)/float(gScreenHeight), 0.01f, 10.f);
 
-    gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", gModelMatrix);
+    gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", quadTransform.GetModelMatrix());
     gGraphicsPipelineShaderProgram->LinkUniform("u_projectionMatrix", projectionMat);
 }
 
