@@ -95,25 +95,37 @@ void Input()
 
         if (e.type == SDL_EVENT_KEY_DOWN)
         {
-            if (e.key.key == SDLK_UP)
+            if (e.key.key == SDLK_W)
             {
                 gObjectPosition.y += 0.05f;
-                std::cout << "Up Arrow Key Pressed\n";
+                std::cout << "W Pressed\n";
             }
 
-            if (e.key.key == SDLK_DOWN)
+            if (e.key.key == SDLK_S)
             {
                 gObjectPosition.y -= 0.05f;
-                std::cout << "Down Arrow Key Pressed\n";
+                std::cout << "S Pressed\n";
             }
 
-            if (e.key.key == SDLK_Q)
+            if (e.key.key == SDLK_A)
+            {
+                gObjectPosition.x -= 0.05f;
+                std::cout << "A Pressed\n";
+            }
+
+            if (e.key.key == SDLK_D)
+            {
+                gObjectPosition.x += 0.05f;
+                std::cout << "D Pressed\n";
+            }
+            
+            if (e.key.key == SDLK_UP)
             {
                 gObjectPosition.z -= 0.05f;
                 std::cout << "Q Arrow Key Pressed\n";
             }
 
-            if (e.key.key == SDLK_E)
+            if (e.key.key == SDLK_DOWN)
             {
                 gObjectPosition.z += 0.05f;
                 std::cout << "E Arrow Key Pressed\n";
