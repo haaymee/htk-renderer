@@ -117,14 +117,28 @@ glm::vec3 Transform::GetWorldPosition() const
 
 glm::vec3 Transform::GetEulerWorldRotation() const
 {
-    return glm::vec4(1.f);
+    if (!parent)
+        return GetEulerLocalRotation();
+
+    return parent->GetEulerWorldRotation() * localRotation;
 }
 
 glm::vec3 Transform::GetWorldScale() const
 {
-    return glm::vec3(
+    return {
         glm::length(glm::vec3(GetWorldModelMatrix()[0])),
         glm::length(glm::vec3(GetWorldModelMatrix()[1])),
         glm::length(glm::vec3(GetWorldModelMatrix()[2]))
-    );
+    };
+}
+
+glm::vec3 Transform::GetWorldForwardDirection() const
+{
+    glm::mat4 rotMatrix = glm::mat4_cast(localRotation);
+    return glm::normalize(glm::vec3(rotMatrix * glm::vec4(localPosition, 0.0f)));
+}
+
+glm::vec3 Transform::GetEulerLocalRotation() const
+{
+    return glm::degrees(glm::eulerAngles(localRotation));
 }

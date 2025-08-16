@@ -11,6 +11,9 @@
 
 #include "Transform.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/string_cast.hpp"
+
 // Globals
 static int gScreenWidth = 640;
 static int gScreenHeight = 480;
@@ -150,13 +153,16 @@ void Input()
             if (e.key.key == SDLK_Q)
             {
                 quadTransform.AddRotationYOffset(2.0f);
-                std::cout << "Q Arrow Key Pressed\n";
+                // std::cout << "Q Arrow Key Pressed\n";
+                std::cout << glm::to_string(quadTransform.GetWorldForwardDirection()) << "\n";
+
             }
 
             if (e.key.key == SDLK_E)
             {
                 quadTransform.AddRotationYOffset(-2.0f);
-                std::cout << "E Arrow Key Pressed\n";
+                // std::cout << "E Arrow Key Pressed\n";
+                std::cout << glm::to_string(quadTransform.GetWorldForwardDirection()) << "\n";
             }
         }
     }

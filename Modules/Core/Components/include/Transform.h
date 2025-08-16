@@ -29,10 +29,11 @@ struct Transform
     glm::vec3 GetWorldPosition() const;
     glm::vec3 GetEulerWorldRotation() const;
     glm::vec3 GetWorldScale() const;
+    glm::vec3 GetWorldForwardDirection() const;
     
     glm::mat4 GetLocalModelMatrix() const {return localModel;}
     glm::vec3 GetLocalPosition() const {return localPosition;}
-    // glm::vec3 GetEulerLocalRotation() const {return localRotation;}
+    glm::vec3 GetEulerLocalRotation() const;
     glm::vec3 GetLocalScale() const {return localScale;}
     
     bool IsDirty() const {return dirty;}
@@ -49,6 +50,8 @@ private:
     glm::vec3 localPosition {0.0f};
     glm::quat localRotation {1.0f,0.f,0.f,0.f};
     glm::vec3 localScale {1.0f};
+
+    glm::vec3 localForwardDir {0,0,1};
     
     glm::mat4 localModel {1.0f};
     bool dirty = false;
