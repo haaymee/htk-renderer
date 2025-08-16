@@ -10,8 +10,8 @@ if (SOURCES)
     target_compile_features(${LIBRARY_NAME} PUBLIC cxx_std_20)
 
     target_include_directories(${LIBRARY_NAME}
-        PUBLIC include
-        PRIVATE source exports
+        PUBLIC Components/include FileHandling/include SceneObjects/include
+        PRIVATE Components/src FileHandling/src SceneObjects/src
     )
 
     target_link_libraries(${LIBRARY_NAME} PUBLIC glm::glm SDL GLAD)
