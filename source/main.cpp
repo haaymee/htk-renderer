@@ -165,7 +165,7 @@ void Input()
 void PreDraw()
 {
     if (quadTransform.IsDirty())
-        quadTransform.UpdateModelMatrix();
+        quadTransform.UpdateModelMatrices();
     
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -181,7 +181,7 @@ void PreDraw()
 
     glm::mat4 projectionMat = glm::perspective(glm::radians(45.f), float(gScreenWidth)/float(gScreenHeight), 0.01f, 10.f);
 
-    gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", quadTransform.GetModelMatrix());
+    gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", quadTransform.GetLocalModelMatrix());
     gGraphicsPipelineShaderProgram->LinkUniform("u_projectionMatrix", projectionMat);
 }
 

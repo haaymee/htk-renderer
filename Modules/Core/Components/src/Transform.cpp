@@ -3,75 +3,88 @@
 #include "glm/ext/matrix_transform.hpp"
 
 Transform::Transform()
-    : position(glm::vec3(0.0f, 0.0f, 0.0f)), rotation(glm::vec3(0.0f, 0.0f, 0.0f)), scale(glm::vec3(1.0f, 1.0f, 1.0f))
+    : localPosition(glm::vec3(0.0f, 0.0f, 0.0f)), localRotation(glm::vec3(0.0f, 0.0f, 0.0f)), localScale(glm::vec3(1.0f, 1.0f, 1.0f)),
+        parent(nullptr), children({nullptr})
 {
     
 }
 
 void Transform::AddPositionOffset(float x, float y, float z)
 {
-    position.x += x;
-    position.y += y;
-    position.z += z;
+    localPosition.x += x;
+    localPosition.y += y;
+    localPosition.z += z;
 
     MarkDirty();
 }
 
 void Transform::SetPosition(float x, float y, float z)
 {
-    position = glm::vec3(x, y, z);
+    localPosition = glm::vec3(x, y, z);
     MarkDirty();
 }
 
 void Transform::AddRotationXOffset(float angle)
 {
-    rotation.x += angle;
+    localRotation = glm::normalize(
+        glm::angleAxis(glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f)) * localRotation
+    );
     MarkDirty();
 }
 
 void Transform::AddRotationYOffset(float angle)
 {
-    rotation.y += angle;
+    localRotation = glm::normalize(
+        glm::angleAxis(glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f)) * localRotation
+    );
     MarkDirty();
 }
 
 void Transform::AddRotationZOffset(float angle)
 {
-    rotation.z += angle;
+    localRotation = glm::normalize(
+        glm::angleAxis(glm::radians(angle), glm::vec3(0.0f, 0.0f, 1.0f)) * localRotation
+    );
     MarkDirty();
 }
 
 void Transform::SetRotation(float x, float y, float z)
 {
-    rotation = glm::vec3(x, y, z);
+    localRotation = glm::quat(glm::radians(glm::vec3(x, y, z)));
+    MarkDirty();
+}
+
+void Transform::SetRotation(const glm::quat& rotation)
+{
+    localRotation = rotation;
     MarkDirty();
 }
 
 void Transform::AddScaleOffset(float x, float y, float z)
 {
-    scale.x += x;
-    scale.y += y;
-    scale.z += z;
+    localScale.x += x;
+    localScale.y += y;
+    localScale.z += z;
     MarkDirty();
 }
 
 void Transform::AddScaleOffset(float val)
 {
-    scale.x += val;
-    scale.y += val;
-    scale.z += val;
+    localScale.x += val;
+    localScale.y += val;
+    localScale.z += val;
     MarkDirty();
 }
 
 void Transform::SetScale(float val)
 {
-    scale = glm::vec3(val);
+    localScale = glm::vec3(val);
     MarkDirty();
 }
 
 void Transform::SetScale(float x, float y, float z)
 {
-    scale = glm::vec3(x, y, z);
+    localScale = glm::vec3(x, y, z);
     MarkDirty();
 }
 
@@ -80,18 +93,38 @@ void Transform::MarkDirty()
     dirty = true;
 }
 
-void Transform::UpdateModelMatrix()
+void Transform::UpdateModelMatrices()
 {
-    // position
-    model = glm::translate(glm::mat4(1.0f), position);
-    
-    // rotation
-    model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    
-    // scale
-    model = glm::scale(model, scale);
+    localModel = glm::translate(glm::mat4(1.f), localPosition)
+                * glm::mat4_cast(localRotation)
+                * glm::scale(glm::mat4(1.f), localScale);
 
     dirty = false;
+}
+
+glm::mat4 Transform::GetWorldModelMatrix() const
+{
+    if (!parent)
+        return localModel;
+
+    return parent->GetWorldModelMatrix() * localModel;
+}
+
+glm::vec3 Transform::GetWorldPosition() const
+{
+    return glm::vec3(GetWorldModelMatrix()[3]);
+}
+
+glm::vec3 Transform::GetEulerWorldRotation() const
+{
+    return glm::vec4(1.f);
+}
+
+glm::vec3 Transform::GetWorldScale() const
+{
+    return glm::vec3(
+        glm::length(glm::vec3(GetWorldModelMatrix()[0])),
+        glm::length(glm::vec3(GetWorldModelMatrix()[1])),
+        glm::length(glm::vec3(GetWorldModelMatrix()[2]))
+    );
 }
