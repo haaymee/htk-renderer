@@ -12,6 +12,7 @@
 #include "Transform.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include "Camera.h"
 #include "glm/gtx/string_cast.hpp"
 
 // Globals
@@ -32,8 +33,8 @@ GLuint gIndexBufferObject = 0;
 
 // Shader Vars
 std::unique_ptr<ShaderProgram> gGraphicsPipelineShaderProgram = nullptr;
-// glm::mat4 gModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 Transform quadTransform = {};
+Camera gAppCamera = {};
 
 void GetOpenGLVersionInfo()
 {
@@ -98,71 +99,42 @@ void Input()
         {
             if (e.key.key == SDLK_W)
             {
-                quadTransform.AddPositionOffset(0.0f, 0.05f, 0.0f);
-                std::cout << "W Pressed\n";
+                glm::vec3 moveDir = gAppCamera.GetTransform().GetWorldForwardDirection();
+                gAppCamera.GetTransform().AddPositionOffset(moveDir, 0.1f);
+                // std::cout << "W Pressed\n";
             }
 
             if (e.key.key == SDLK_S)
             {
-                quadTransform.AddPositionOffset(0.0f, -0.05f, 0.0f);
-                std::cout << "S Pressed\n";
+                glm::vec3 moveDir = gAppCamera.GetTransform().GetWorldForwardDirection();
+                gAppCamera.GetTransform().AddPositionOffset(-moveDir, 0.1f);
+                // std::cout << "S Pressed\n";
             }
 
             if (e.key.key == SDLK_A)
             {
-                quadTransform.AddPositionOffset(-0.05f, 0.0f, 0.0f);
-                std::cout << "A Pressed\n";
+                glm::vec3 moveDir = gAppCamera.GetTransform().GetWorldRightDirection();
+                gAppCamera.GetTransform().AddPositionOffset(-moveDir, 0.1f);
+                // std::cout << "A Pressed\n";
             }
 
             if (e.key.key == SDLK_D)
             {
-                quadTransform.AddPositionOffset(0.05f, 0.0f, 0.0f);
-                std::cout << "D Pressed\n";
-            }
-            
-            if (e.key.key == SDLK_UP)
-            {
-                quadTransform.AddPositionOffset(0.0f, 0.0f, -0.05f);
-                std::cout << "Up Arrow Key Pressed\n";
+                glm::vec3 moveDir = gAppCamera.GetTransform().GetWorldRightDirection();
+                gAppCamera.GetTransform().AddPositionOffset(moveDir, 0.1f);
+                // std::cout << "D Pressed\n";
             }
 
-            if (e.key.key == SDLK_DOWN)
+            if (e.key.key == SDLK_SPACE)
             {
-                quadTransform.AddPositionOffset(0.0f, 0.0f, 0.05f);
-                std::cout << "Down Arrow Key Pressed\n";
+                glm::vec3 moveDir = gAppCamera.GetTransform().GetWorldUpDirection();
+                gAppCamera.GetTransform().AddPositionOffset(moveDir, 0.1f);
             }
 
-            if (e.key.key == SDLK_LEFT)
+            if (e.key.key == SDLK_LSHIFT)
             {
-                quadTransform.AddScaleOffset(-0.01f);
-                std::cout << "Left Arrow Key Pressed\n";
-            }
-
-            if (e.key.key == SDLK_RIGHT)
-            {
-                quadTransform.AddScaleOffset(0.01f);
-                std::cout << "Right Arrow Key Pressed\n";
-            }
-            
-            if (e.key.key == SDLK_DOWN)
-            {
-                quadTransform.AddPositionOffset(0.0f, 0.0f, 0.05f);
-                std::cout << "Down Arrow Key Pressed\n";
-            }
-
-            if (e.key.key == SDLK_Q)
-            {
-                quadTransform.AddRotationYOffset(2.0f);
-                // std::cout << "Q Arrow Key Pressed\n";
-                std::cout << glm::to_string(quadTransform.GetWorldForwardDirection()) << "\n";
-
-            }
-
-            if (e.key.key == SDLK_E)
-            {
-                quadTransform.AddRotationYOffset(-2.0f);
-                // std::cout << "E Arrow Key Pressed\n";
-                std::cout << glm::to_string(quadTransform.GetWorldForwardDirection()) << "\n";
+                glm::vec3 moveDir = gAppCamera.GetTransform().GetWorldUpDirection();
+                gAppCamera.GetTransform().AddPositionOffset(-moveDir, 0.1f);
             }
         }
     }
@@ -172,6 +144,8 @@ void PreDraw()
 {
     if (quadTransform.IsDirty())
         quadTransform.UpdateModelMatrices();
+    if (gAppCamera.GetTransform().IsDirty())
+        gAppCamera.GetTransform().UpdateModelMatrices();
     
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -185,10 +159,14 @@ void PreDraw()
 
     gGraphicsPipelineShaderProgram->LinkUniform("u_time", static_cast<GLfloat>(appElapsedTime.count()));
 
-    glm::mat4 projectionMat = glm::perspective(glm::radians(45.f), float(gScreenWidth)/float(gScreenHeight), 0.01f, 10.f);
-
     gGraphicsPipelineShaderProgram->LinkUniform("u_modelMatrix", quadTransform.GetLocalModelMatrix());
-    gGraphicsPipelineShaderProgram->LinkUniform("u_projectionMatrix", projectionMat);
+    gGraphicsPipelineShaderProgram->LinkUniform("u_projectionMatrix", gAppCamera.GetPerspectiveProjectionMatrix(gScreenWidth, gScreenHeight));
+    gGraphicsPipelineShaderProgram->LinkUniform("u_viewMatrix", gAppCamera.GetViewMatrix());
+
+    std::cout << std::format("Camera Up Vector: {}\n", glm::to_string(gAppCamera.GetTransform().GetWorldRightDirection()));
+    // std::cout << std::format("Quad Forward Vector: {}\n", glm::to_string(quadTransform.GetWorldForwardDirection()));
+
+    
 }
 
 void Draw()
@@ -282,6 +260,8 @@ int main()
 
     VertexSpecification();
     CreateShaderProgram("Source/Shaders/vertex.vert", "Source/Shaders/fragment.frag");
+
+    quadTransform.AddPositionOffset(0.f,0.f, -2.f);
     
     MainLoop();
     Cleanup();

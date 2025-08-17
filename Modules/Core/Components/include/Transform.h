@@ -9,6 +9,7 @@ struct Transform
     Transform();
     
     void AddPositionOffset(float x = 0.0f, float y = 0.0f, float z = 0.0f);
+    void AddPositionOffset(const glm::vec3& offsetDirection, float offsetValue);
     void SetPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f);
 
     void AddRotationXOffset(float angle);
@@ -27,9 +28,12 @@ struct Transform
 
     glm::mat4 GetWorldModelMatrix() const;
     glm::vec3 GetWorldPosition() const;
+    glm::quat GetQuatWorldRotation() const;
     glm::vec3 GetEulerWorldRotation() const;
     glm::vec3 GetWorldScale() const;
     glm::vec3 GetWorldForwardDirection() const;
+    glm::vec3 GetWorldUpDirection() const;
+    glm::vec3 GetWorldRightDirection() const;
     
     glm::mat4 GetLocalModelMatrix() const {return localModel;}
     glm::vec3 GetLocalPosition() const {return localPosition;}

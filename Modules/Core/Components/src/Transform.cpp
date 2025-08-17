@@ -18,6 +18,12 @@ void Transform::AddPositionOffset(float x, float y, float z)
     MarkDirty();
 }
 
+void Transform::AddPositionOffset(const glm::vec3& offsetDirection, float offsetValue)
+{
+    localPosition += offsetDirection * offsetValue;
+    MarkDirty();
+}
+
 void Transform::SetPosition(float x, float y, float z)
 {
     localPosition = glm::vec3(x, y, z);
@@ -115,6 +121,11 @@ glm::vec3 Transform::GetWorldPosition() const
     return glm::vec3(GetWorldModelMatrix()[3]);
 }
 
+glm::quat Transform::GetQuatWorldRotation() const
+{
+    return parent ? parent->GetQuatWorldRotation() * localRotation : localRotation;
+}
+
 glm::vec3 Transform::GetEulerWorldRotation() const
 {
     if (!parent)
@@ -134,8 +145,26 @@ glm::vec3 Transform::GetWorldScale() const
 
 glm::vec3 Transform::GetWorldForwardDirection() const
 {
-    glm::mat4 rotMatrix = glm::mat4_cast(localRotation);
-    return glm::normalize(glm::vec3(rotMatrix * glm::vec4(localPosition, 0.0f)));
+    return glm::normalize(GetQuatWorldRotation() * glm::vec3(0.f,0.f,-1.f));
+}
+
+glm::vec3 Transform::GetWorldUpDirection() const
+{
+    return glm::normalize(glm::cross(GetWorldRightDirection(), GetWorldForwardDirection()));
+}
+
+glm::vec3 Transform::GetWorldRightDirection() const
+{
+    glm::vec3 kWorldUp = glm::vec3(0.f,1.f,0.f);
+    
+    // Handle degeneracy if forward ~ worldUp
+    glm::vec3 up = glm::abs(glm::dot(GetWorldForwardDirection(), kWorldUp)) > 0.999f
+                 ? glm::vec3(0.0f, 0.0f, 1.0f)  // fallback up
+                 : kWorldUp;
+
+    // Right-handed: right = cross(forward, up)
+    glm::vec3 r = glm::normalize(glm::cross(GetWorldForwardDirection(), up));
+    return r;
 }
 
 glm::vec3 Transform::GetEulerLocalRotation() const

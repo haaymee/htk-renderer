@@ -4,6 +4,7 @@ uniform float u_time;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_projectionMatrix;
+uniform mat4 u_viewMatrix;
 
 
 layout(location = 0) in vec3 position;
@@ -17,6 +18,10 @@ void main()
     
     float posOffset = (sin(u_time * 5.f) / 50.f);
     
-    vec4 finalPosition = u_projectionMatrix * u_modelMatrix * vec4(position.x, position.y + posOffset, position.z, 1.0f); 
+//    vec4 finalPosition = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(position.x, position.y + posOffset, position.z, 1.0f);
+    vec4 finalPosition = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(position, 1.0f);
+//    vec4 finalPosition = u_projectionMatrix * u_modelMatrix * vec4(position, 1.0f);
+
+    
     gl_Position = finalPosition;
 }
